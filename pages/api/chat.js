@@ -9,7 +9,7 @@ const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'venice/uncensored:free', // NSFW model
+        model: 'venice/uncensored:free',
         messages: [
           { role: 'system', content: 'You are a spicy, flirty, NSFW chatbot.' },
           { role: 'user', content: message },
@@ -19,12 +19,15 @@ const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
  
     const data = await response.json();
  
-    // Safe parsing to avoid "No response"
     let reply = 'No response';
     if (data?.choices?.length > 0) {
-      if (data.choices[0].message?.content) {
-        reply = data.choices[0].message.content;
-      } else if (data.choices[0].text) {
-        reply = data.choices[0].text;
-      }
+      if (data.choices[0].message?.content) reply = data.choices[0].message.content;
+      else if (data.choices[0].text) reply = data.choices[0].text;
     }
+ 
+    res.status(200).json({ reply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ reply: 'Error processing request.' });
+  }
+}
