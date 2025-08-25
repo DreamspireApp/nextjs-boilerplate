@@ -2,7 +2,7 @@
 import { useState } from 'react';
  
 export default function Home() {
-  const [messages, setMessages] = useState<{ role: 'user' | 'bot', content: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
  
@@ -14,15 +14,19 @@ export default function Home() {
     setInput('');
     setLoading(true);
  
-    // Call your API route (temporary fake response for now)
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: input })
-    });
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
+      });
  
-    const data = await res.json();
-    setMessages(prev => [...prev, newMessage, { role: 'bot', content: data.reply }]);
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'bot', content: data.reply }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'bot', content: 'Error: could not get response.' }]);
+    }
+ 
     setLoading(false);
   };
  
